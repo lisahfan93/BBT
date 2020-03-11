@@ -1,0 +1,50 @@
+select
+----MESSAGES DATA
+    om.message_id,
+    om.created_at as outbound_message_created_at,
+    om.body as outbound_message_body,
+    om.partner_id as outbound_message_partner_id,
+    mt.name as message_type,
+----SUBSCRIBER DATA
+	s.id as subscriber_id,
+	s.created_at,
+	s.signedup_at,
+	s.deactivated_at,
+	s.carrier_name,
+	-- s.survey_id, --need to join to something
+	z.code as subscriber_zip_code,
+	z.city as subscriber_city,
+	s_state.name as subscriber_state,
+	ss.name as subscriber_source,
+	sst.name as subscriber_status,
+	l.name as subscriber_language,
+	sdr.name as subscriber_deactivation_method,
+----PARTNER DATA
+	p.name as partner_name,
+	p.created_at as partner_created_date,
+	p.is_active as partner_is_active,	
+	p_state.name as partner_state
+    
+from public.outbound_messages as om
+left join public.message_types as mt
+on om.message_type_id = mt.id 
+left join public.v_subscribers as s
+on om.subscriber_id = s.id
+left join public.zip_codes as z 
+on z.id = s.zip_id
+left join public.states as s_state
+on s_state.id = z.state_id
+left join public.subscriber_sources as ss 
+on ss.id = s.source_id
+left join public.subscriber_statuses as sst 
+on sst.id = s.status_id
+left join public.languages as l
+on l.id = s.language_id
+left join public.subscriber_deactivation_reasons as sdr 
+on sdr.id = s.deactivation_reason_id
+left join public.partners as p
+on p.id = s.partner_id
+left join public.partner_types as pt 
+on pt.id = p.type_id
+left join public.states as p_state
+on p_state.id = p.state_id
